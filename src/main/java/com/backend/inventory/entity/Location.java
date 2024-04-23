@@ -93,7 +93,6 @@ public class Location {
                 ", state='" + state + '\'' +
                 ", address='" + address + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", items=" + items +
                 '}';
     }
 }
