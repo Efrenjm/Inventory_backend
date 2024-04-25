@@ -15,7 +15,7 @@ API errors follow standard HTTP status codes. Refer to the specific endpoint des
 
 
 <h2><span style="color:green;">GET</span> Get a list of items </h2>
-```bash
+```
 curl --location 'http://localhost:8080/items?state={state}'
 ```
 Retrieves a list of items based on the specified state provided in the query parameters. If no state is provided, it returns the list of all items.
@@ -57,7 +57,7 @@ Retrieves a list of items based on the specified state provided in the query par
 ```
 
 <h2><span style="color:green;">GET</span> Get an item by Id </h2>
-```bash
+```
 curl --location 'http://localhost:8080/items/{itemId}'
 ```
 Retrieves details of a specific item by its unique identifier.
@@ -86,7 +86,7 @@ Retrieves details of a specific item by its unique identifier.
 
 
 <h2><span style="color:goldenrod;">POST</span> Create a new item </h2>
-```bash
+```
 curl --location 'http://localhost:8080/items' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -126,7 +126,7 @@ JSON object representing the new item (required).
 }
 ```
 <h2><span style="color:indianred;">DELETE</span> Delete an item </h2>
-```bash
+```
 curl --location --request DELETE 'http://localhost:8080/items/{itemId}'
 ```
 
