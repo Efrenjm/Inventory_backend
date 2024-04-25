@@ -5,7 +5,9 @@ import com.backend.inventory.dao.LocationRepository;
 import com.backend.inventory.entity.Item;
 import com.backend.inventory.entity.Location;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 
 import java.util.Optional;
@@ -47,18 +49,29 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public Item createItem(String name, String description, int location_id) {
+    public Item createItem(int id, String name, String description, int location_id) {
         Optional<Location> result = locationRepository.findById(location_id);
 
         Location tempLocation = null;
         if (result.isPresent()) {
             tempLocation = result.get();
-        } // else { throw bad request }
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "'location_id' is not associated with a valid location.");
+        }
+        if (id != 0) {
+            Optional<Item> actualRecord = itemRepository.findById(id);
+            if (actualRecord.isPresent()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Another item with the same id already exists. Please provide a unique id.");
+            }
+        }
+        Item newItem = new Item(name, description);
+        newItem.setId(id);
+//        newItem.setId(id);
+        newItem.setLocation(tempLocation);
 
-        Item newITem = new Item(name, description);
-        newITem.setLocation(tempLocation);
-
-        return itemRepository.save(newITem);
+        return itemRepository.save(newItem);
     }
 
     @Override
