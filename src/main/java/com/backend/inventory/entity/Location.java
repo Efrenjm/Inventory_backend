@@ -2,10 +2,6 @@ package com.backend.inventory.entity;
 
 import jakarta.persistence.*;
 
-import javax.swing.plaf.IconUIResource;
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "location")
 public class Location {
@@ -22,17 +18,12 @@ public class Location {
     private String address;
 
     @Column(name = "phone_number")
-    private Integer phoneNumber;
-
-    @OneToMany(mappedBy = "location",
-               cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                          CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<Item> items;
+    private Long phoneNumber;
 
     public Location() {
     }
 
-    public Location(String state, String address, Integer phoneNumber) {
+    public Location(String state, String address, Long phoneNumber) {
         this.state = state;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -62,28 +53,12 @@ public class Location {
         this.address = address;
     }
 
-    public Integer getPhoneNumber() {
+    public Long getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(Integer phoneNumber) {
+    public void setPhoneNumber(Long phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public List<Item> getItems() {
-        return items;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
-
-    public void add(Item tempItem) {
-        if (items == null) {
-            items = new ArrayList<>();
-        }
-        items.add(tempItem);
-        tempItem.setLocation(this);
     }
 
     @Override

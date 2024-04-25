@@ -18,7 +18,7 @@ public class Item {
     private String description;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                          CascadeType.PERSIST, CascadeType.REFRESH})
+            CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "location_id")
     private Location location;
 
@@ -28,6 +28,14 @@ public class Item {
     public Item(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -60,7 +68,6 @@ public class Item {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", location=" + location +
                 '}';
     }
 }
