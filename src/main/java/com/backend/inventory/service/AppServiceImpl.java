@@ -4,6 +4,7 @@ import com.backend.inventory.dao.ItemRepository;
 import com.backend.inventory.dao.LocationRepository;
 import com.backend.inventory.entity.Item;
 import com.backend.inventory.entity.Location;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class AppServiceImpl implements AppService {
         return Flux.fromIterable(itemRepository.findAll())
                 .filter(item -> {
                     Location location = item.getLocation();
-                    return location!=null && stateName.equals(location.getState());
+                    return location != null && stateName.equals(location.getState());
                 })
                 .switchIfEmpty(Mono.error(
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -51,32 +52,63 @@ public class AppServiceImpl implements AppService {
         if (result.isPresent()) {
             foundItem = result.get();
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "The provided item `id` is not associated with a valid item.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The provided `id` " + itemId + " is not associated with a valid item.");
         }
         return foundItem;
     }
 
     @Override
-    public Item createItem(int id, String name, String description, int location_id) {
-        Optional<Location> foundLocation = locationRepository.findById(location_id);
+    public Item createItem(JsonNode request) {
+        Item newItem = validateRequest(request);
+        return itemRepository.save(newItem);
+    }
 
-        Location tempLocation;
-        if (foundLocation.isPresent()) {
-            tempLocation = foundLocation.get();
-        } else {
+    private Item validateRequest(JsonNode request) {
+        int id;
+        String name;
+        int location_id;
+        String description = null;
+        try {
+            id = request.get("id").asInt();
+            if (id <= 0) throw new Exception();
+
+            name = request.get("name").toString()
+                    .replaceAll("^\"|\"$", "").strip();
+
+            location_id = request.get("location_id").asInt();
+        } catch (Exception exc) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "The provided `location_id` is not associated with a valid location.");
+                    "Missing or not valid required properties `id`, `name` and/or `location_id` in the request body.", exc);
+        }
+        if (request.hasNonNull("description")) {
+            description = request.get("description").toString()
+                    .replaceAll("^\"|\"$", "").strip();
         }
 
-        Optional<Item> foundItem = itemRepository.findById(id);
+        validateNoConflicts(id);
+        Location location = getLocation(location_id);
+        return new Item(id, name, description, location);
+    }
+
+    private void validateNoConflicts(int itemId) {
+        Optional<Item> foundItem = itemRepository.findById(itemId);
         if (foundItem.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Another item with the same `id` already exists. Please provide a unique item `id`.");
+                    "Another item with the same `id`: " + itemId + " already exists. Please provide a unique item `id`.");
         }
-        Item newItem = new Item(id, name, description, tempLocation);
+    }
 
-        return itemRepository.save(newItem);
+    private Location getLocation(int location_id) {
+        Optional<Location> foundLocation = locationRepository.findById(location_id);
+        Location location;
+        if (foundLocation.isPresent()) {
+            location = foundLocation.get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "The provided `location_id`: " + location_id + " is not associated with a valid location.");
+        }
+        return location;
     }
 
     @Override
@@ -84,7 +116,7 @@ public class AppServiceImpl implements AppService {
         Optional<Item> tempItem = itemRepository.findById(itemId);
         if (!tempItem.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "The provided item `id` is not associated with a valid item.");
+                    "The provided `id` " + itemId + " is not associated with a valid item.");
         }
         itemRepository.deleteById(itemId);
     }
