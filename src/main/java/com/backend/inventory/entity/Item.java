@@ -28,11 +28,13 @@ public class Item {
         this.name = name;
         this.description = description;
     }
+
     public Item(int id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
     }
+
     public Item(int id, String name, String description, Location location) {
         this.id = id;
         this.name = name;

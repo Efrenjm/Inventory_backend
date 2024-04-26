@@ -11,7 +11,7 @@ public interface AppService {
 
     Flux<Item> findItemsByState(String stateName);
 
-//    Item createItem(int id, String name, String description, int location_id);
     Item createItem(JsonNode request);
+
     void deleteItem(int itemId);
 }

@@ -47,7 +47,7 @@ public class AppServiceImpl implements AppService {
     public Item findItemById(int itemId) {
         Optional<Item> result = itemRepository.findById(itemId);
 
-        Item foundItem = null;
+        Item foundItem;
 
         if (result.isPresent()) {
             foundItem = result.get();
@@ -114,7 +114,7 @@ public class AppServiceImpl implements AppService {
     @Override
     public void deleteItem(int itemId) {
         Optional<Item> tempItem = itemRepository.findById(itemId);
-        if (!tempItem.isPresent()) {
+        if (tempItem.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "The provided `id` " + itemId + " is not associated with a valid item.");
         }

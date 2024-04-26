@@ -23,11 +23,6 @@ public class Location {
     public Location() {
     }
 
-    public Location(String state, String address, Long phoneNumber) {
-        this.state = state;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-    }
     public Location(int id, String state, String address, Long phoneNumber) {
         this.id = id;
         this.state = state;

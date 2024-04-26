@@ -7,7 +7,6 @@ import java.time.OffsetDateTime;
 public class ErrorResponse {
     private OffsetDateTime timestamp;
     private HttpStatusCode status;
-    private String error;
     private String message;
     private String path;
 

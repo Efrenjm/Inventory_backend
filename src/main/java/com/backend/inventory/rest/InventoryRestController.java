@@ -4,16 +4,12 @@ import com.backend.inventory.entity.Item;
 import com.backend.inventory.service.AppService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 @RestController
 @RequestMapping("/items")
@@ -26,7 +22,7 @@ public class InventoryRestController {
     }
 
     @GetMapping
-    public ResponseEntity<Flux<Item>> getItemsByState(@RequestParam(required = false) String state) {
+    public ResponseEntity<Flux<Item>> getListOfItems(@RequestParam(required = false) String state) {
         Flux<Item> items;
         if (state != null) {
             items = appService.findItemsByState(state);
