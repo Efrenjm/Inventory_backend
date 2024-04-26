@@ -9,7 +9,7 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int Id;
+    private int id;
 
     @Column(name = "state")
     private String state;
@@ -28,13 +28,19 @@ public class Location {
         this.address = address;
         this.phoneNumber = phoneNumber;
     }
+    public Location(int id, String state, String address, Long phoneNumber) {
+        this.id = id;
+        this.state = state;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+    }
 
     public int getId() {
-        return Id;
+        return this.id;
     }
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getState() {
@@ -64,7 +70,7 @@ public class Location {
     @Override
     public String toString() {
         return "Location{" +
-                "Id=" + Id +
+                "Id=" + id +
                 ", state='" + state + '\'' +
                 ", address='" + address + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
