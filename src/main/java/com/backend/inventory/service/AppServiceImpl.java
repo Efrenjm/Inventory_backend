@@ -4,7 +4,6 @@ import com.backend.inventory.dao.ItemRepository;
 import com.backend.inventory.dao.LocationRepository;
 import com.backend.inventory.entity.Item;
 import com.backend.inventory.entity.Location;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,7 +43,6 @@ public class AppServiceImpl implements AppService {
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "No items found for state: '" + stateName + "'")));
     }
-
     @Override
     public Item findItemById(int itemId) {
         Optional<Item> result = itemRepository.findById(itemId);
@@ -59,36 +59,63 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public Item createItem(JsonNode request) {
-        Item newItem = validateRequest(request);
+    public Item createItem(Item newItem) {
+        validateRequiredProperties(newItem);
+        validateNoConflicts(newItem.getId());
+        newItem.setLocation(getDBLocation(newItem.getLocation()));
+
         return itemRepository.save(newItem);
     }
 
-    private Item validateRequest(JsonNode request) {
-        int id;
-        String name;
-        int location_id;
-        String description = null;
-        try {
-            id = request.get("id").asInt();
-            if (id <= 0) throw new Exception();
+    private void validateRequiredProperties(Item newItem) {
+        if (newItem.getLocation() == null) {
+            newItem.setLocation(new Location());
+        }
 
-            name = request.get("name").toString()
-                    .replaceAll("^\"|\"$", "").strip();
+        int itemId = newItem.getId();
+        int locationId = newItem.getLocation().getId();
+        String itemName = newItem.getName();
+        String stateName = newItem.getLocation().getState();
 
-            location_id = request.get("location_id").asInt();
-        } catch (Exception exc) {
+        List<String> missingProperties = new ArrayList<>();
+
+        if (itemId <= 0)
+            missingProperties.add("`id`");
+
+        if (locationId <= 0)
+            missingProperties.add("`location.id`");
+
+        if (itemName == null || itemName.isBlank())
+            missingProperties.add("`name`");
+
+        if (stateName == null || stateName.isBlank())
+            missingProperties.add("`location.state`");
+
+        if (!missingProperties.isEmpty()) {
+            String message = getMessage(missingProperties);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Missing or not valid required properties `id`, `name` and/or `location_id` in the request body.", exc);
+                    message);
         }
-        if (request.hasNonNull("description")) {
-            description = request.get("description").toString()
-                    .replaceAll("^\"|\"$", "").strip();
-        }
+    }
 
-        validateNoConflicts(id);
-        Location location = getLocation(location_id);
-        return new Item(id, name, description, location);
+    private static String getMessage(List<String> missingProperties) {
+        int missing = missingProperties.size();
+        System.out.println(missing);
+        StringBuilder listOfProperties = new StringBuilder();
+
+        for (int i = 0; i < missing; i++) {
+            listOfProperties.append(missingProperties.get(i));
+            if (i < missing - 1)
+                listOfProperties.append(", ");
+        }
+        String message;
+        if (missing == 1)
+            message = "The property: " + listOfProperties.toString()
+                    + " is invalid or missing.";
+        else
+            message = "The properties: " + listOfProperties.toString()
+                    + " are invalid or missing.";
+        return message;
     }
 
     private void validateNoConflicts(int itemId) {
@@ -99,17 +126,54 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    private Location getLocation(int location_id) {
+    private Location getDBLocation(Location location) {
+        int location_id = location.getId();
         Optional<Location> foundLocation = locationRepository.findById(location_id);
-        Location location;
+        Location formattedLocation;
         if (foundLocation.isPresent()) {
-            location = foundLocation.get();
+            formattedLocation = foundLocation.get();
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "The provided `location_id`: " + location_id + " is not associated with a valid location.");
+            locationRepository.findAll();
+            formattedLocation = locationRepository.save(location);
         }
-        return location;
+        return formattedLocation;
     }
+
+//    @Override
+//    public Item createItem(JsonNode request) {
+////        Item newItem = validateRequest(request);
+////        return itemRepository.save(newItem);
+//        return new Item();
+//    }
+
+//    private Item validateRequest(JsonNode request) {
+//        int id;
+//        String name;
+//        int location_id;
+//        String description = null;
+//        try {
+//            id = request.get("id").asInt();
+//            if (id <= 0) throw new Exception();
+//
+//            name = request.get("name").toString()
+//                    .replaceAll("^\"|\"$", "").strip();
+//
+//            location_id = request.get("location_id").asInt();
+//        } catch (Exception exc) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+//                    "Missing or not valid required properties `id`, `name` and/or `location_id` in the request body.", exc);
+//        }
+//        if (request.hasNonNull("description")) {
+//            description = request.get("description").toString()
+//                    .replaceAll("^\"|\"$", "").strip();
+//        }
+//
+//        validateNoConflicts(id);
+//        Location location = getLocation(location_id);
+//        return new Item(id, name, description, location);
+//    }
+
+
 
     @Override
     public void deleteItem(int itemId) {

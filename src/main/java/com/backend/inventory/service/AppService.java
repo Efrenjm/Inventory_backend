@@ -7,11 +7,13 @@ import reactor.core.publisher.Flux;
 public interface AppService {
     Flux<Item> findAllItems();
 
-    Item findItemById(int itemId);
-
     Flux<Item> findItemsByState(String stateName);
 
-    Item createItem(JsonNode request);
+    Item findItemById(int itemId);
+
+    Item createItem(Item request);
+
+//    Item createItem(JsonNode request);
 
     void deleteItem(int itemId);
 }

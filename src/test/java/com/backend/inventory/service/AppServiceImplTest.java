@@ -5,7 +5,6 @@ import com.backend.inventory.dao.LocationRepository;
 import com.backend.inventory.entity.Item;
 import com.backend.inventory.entity.Location;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,11 +60,11 @@ class AppServiceImplTest {
 
     @Test
     void testFindItemsByState_existingState() {
-        Location location1 = new Location(1, "firstState", "address", null);
-        Location location2 = new Location(2, "secondState", "address", null);
-        Item item1 = new Item(1, "Item 1", "Description 1", location1);
-        Item item2 = new Item(2, "Item 2", "Description 2", location1);
-        Item item3 = new Item(3, "Item 3", "Description 3", location2);
+        Location location1 = new Location(1, "firstState");
+        Location location2 = new Location(2, "secondState");
+        Item item1 = new Item(1, "Item 1", location1);
+        Item item2 = new Item(2, "Item 2", location1);
+        Item item3 = new Item(3, "Item 3", location2);
 
         given(itemRepository.findAll())
                 .willReturn(Arrays.asList(item1, item2, item3));
@@ -102,7 +101,7 @@ class AppServiceImplTest {
     @Test
     void testFindItemById_existingId() {
         int itemId = 200;
-        Item item = new Item(itemId, "Item 1", "Description 1");
+        Item item = new Item(itemId, "Item 1");
 
         given(itemRepository.findById(itemId))
                 .willReturn(Optional.of(item));
@@ -141,90 +140,102 @@ class AppServiceImplTest {
         given(itemRepository.save(itemCaptor.capture()))
                 .willReturn(expectedItem);
 
-        JsonNode properties = objectMapper.createObjectNode()
-                .put("id", itemId)
-                .put("location_id", locationId)
-                .put("name", "new item");
-        appService.createItem(properties);
+        appService.createItem(expectedItem);
 
         assertThat(itemCaptor.getValue().toString(), is(equalTo(expectedItem.toString())));
     }
 
     @Test
-    void testCreatedItem_missingId() {
-        JsonNode properties = objectMapper.createObjectNode()
-                .put("location_id", 1)
-                .put("name", "new item");
-        validateBadRequest(properties);
+    void testCreatedItem_negativeItemIdAndLocationId() {
+        Location location = new Location(-1,"state",null,null);
+        Item properties = new Item(-1,"name", "description", location);
+        ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
+                () -> appService.createItem(properties));
+
+        assertThat(expectedException.getStatusCode(), is(equalTo(HttpStatus.BAD_REQUEST)));
+        assertThat(expectedException.getMessage(),
+                containsString("The properties: `id`, `location.id` "
+                        + "are invalid or missing."));
+    }
+    @Test
+    void testCreatedItem_missingIdAndLocationState() {
+        Location location = new Location(1, null);
+        Item properties = new Item("name", "description");
+        properties.setLocation(location);
+        ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
+                () -> appService.createItem(properties));
+
+        assertThat(expectedException.getStatusCode(), is(equalTo(HttpStatus.BAD_REQUEST)));
+        assertThat(expectedException.getMessage(),
+                containsString("The properties: `id`, `location.state` "
+                        + "are invalid or missing."));
     }
 
     @Test
     void testCreatedItem_missingName() {
-        JsonNode properties = objectMapper.createObjectNode()
-                .put("id", 1)
-                .put("location_id", 1);
-        validateBadRequest(properties);
-    }
+        Location location = new Location(1, "state");
+        Item properties = new Item(1,null, location);
 
-    @Test
-    void testCreatedItem_missingLocationId() {
-        JsonNode properties = objectMapper.createObjectNode()
-                .put("id", 1)
-                .put("name", "new item");
-        validateBadRequest(properties);
-    }
-
-    private void validateBadRequest(JsonNode properties) {
         ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
                 () -> appService.createItem(properties));
+
         assertThat(expectedException.getStatusCode(), is(equalTo(HttpStatus.BAD_REQUEST)));
         assertThat(expectedException.getMessage(),
-                containsString("Missing or not valid required properties `id`, "
-                        + "`name` and/or `location_id` in the request body."));
+                containsString("The property: `name` is invalid or missing."));
     }
 
     @Test
-    void testCreatedItem_duplicatedId() {
+    void testCreatedItem_missingLocation() {
+        Item properties = new Item(1,"name","description");
+        ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
+                () -> appService.createItem(properties));
+
+        assertThat(expectedException.getStatusCode(), is(equalTo(HttpStatus.BAD_REQUEST)));
+        assertThat(expectedException.getMessage(),
+                containsString("The properties: `location.id`, `location.state` are invalid or missing."));
+    }
+
+
+    @Test
+    void testCreatedItem_duplicatedItemId() {
         int itemId = 1;
         int locationId = 1;
         Location location = new Location(locationId, "state", "address", null);
-        Item expectedItem = new Item(itemId, "new item", null, location);
         given(locationRepository.findById(locationId))
                 .willReturn(Optional.of(location));
 
         given(itemRepository.findById(itemId))
-                .willReturn(Optional.of(expectedItem));
+                .willReturn(Optional.of(new Item()));
 
-        JsonNode properties = objectMapper.createObjectNode()
-                .put("id", itemId)
-                .put("name", "new item")
-                .put("location_id", locationId);
+        Item item = new Item(itemId, "new item", null, location);
         ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
-                () -> appService.createItem(properties));
+                () -> appService.createItem(item));
         assertThat(expectedException.getStatusCode(), is(equalTo(HttpStatus.CONFLICT)));
         assertThat(expectedException.getMessage(),
                 containsString("Another item with the same `id`: "
                         + itemId + " already exists. Please provide a unique item `id`."));
-
     }
 
     @Test
-    void testCreatedItem_nonExistingLocation() {
+    void testCreatedItem_duplicatedLocationId() {
         int itemId = 1;
         int locationId = 1;
+        Location dbLocation = new Location(locationId, "state", "address", null);
+        Location requestLocation = new Location(locationId, "another_state", "another_address", 10L);
         given(locationRepository.findById(locationId))
-                .willReturn(Optional.empty());
+                .willReturn(Optional.of(dbLocation));
 
-        JsonNode properties = objectMapper.createObjectNode()
-                .put("id", itemId)
-                .put("name", "new item")
-                .put("location_id", locationId);
-        ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
-                () -> appService.createItem(properties));
-        assertThat(expectedException.getStatusCode(), is(equalTo(HttpStatus.BAD_REQUEST)));
-        assertThat(expectedException.getMessage(),
-                containsString("The provided `location_id`: "
-                        + locationId + " is not associated with a valid location."));
+        Item requestedItem = new Item(itemId, "new item", null, requestLocation);
+        Item expectedItem = new Item(itemId, "new item", null, dbLocation);
+
+        ArgumentCaptor<Item> itemCaptor = ArgumentCaptor.forClass(Item.class);
+        given(itemRepository.save(itemCaptor.capture()))
+                .willReturn(expectedItem);
+
+        appService.createItem(requestedItem);
+
+        assertThat(itemCaptor.getValue().toString(), is(equalTo(expectedItem.toString())));
+
     }
 
     @Test

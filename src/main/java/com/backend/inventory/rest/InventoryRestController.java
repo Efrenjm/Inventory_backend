@@ -2,7 +2,6 @@ package com.backend.inventory.rest;
 
 import com.backend.inventory.entity.Item;
 import com.backend.inventory.service.AppService;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,11 +37,19 @@ public class InventoryRestController {
     }
 
     @PostMapping
-    public ResponseEntity<Item> insertNewItem(@RequestBody JsonNode requestBody, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Item> insertNewItemWithLocationId(@RequestBody Item requestBody, UriComponentsBuilder uriBuilder) {
+        System.out.println("The item is" + requestBody);
         Item newItem = appService.createItem(requestBody);
         URI location = uriBuilder.path("/items/{id}").buildAndExpand(newItem.getId()).toUri();
         return ResponseEntity.created(location).body(newItem);
     }
+
+//    @PostMapping
+//    public ResponseEntity<Item> insertNewItem(@RequestBody Item requestBody, UriComponentsBuilder uriBuilder) {
+//        Item newItem = appService.createItem(requestBody);
+//        URI location = uriBuilder.path("/items/{id}").buildAndExpand(newItem.getId()).toUri();
+//        return ResponseEntity.created(location).body(newItem);
+//    }
 
     @DeleteMapping("/{itemId}")
     public ResponseEntity deleteItem(@PathVariable int itemId) {

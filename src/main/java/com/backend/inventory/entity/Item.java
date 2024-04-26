@@ -35,6 +35,17 @@ public class Item {
         this.description = description;
     }
 
+    public Item(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Item(int id, String name, Location location) {
+        this.id = id;
+        this.name = name;
+        this.location = location;
+    }
+
     public Item(int id, String name, String description, Location location) {
         this.id = id;
         this.name = name;

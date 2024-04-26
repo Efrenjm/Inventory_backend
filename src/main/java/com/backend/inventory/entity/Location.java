@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Location {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
@@ -21,6 +21,11 @@ public class Location {
     private Long phoneNumber;
 
     public Location() {
+    }
+
+    public Location(int id, String state) {
+        this.id = id;
+        this.state = state;
     }
 
     public Location(int id, String state, String address, Long phoneNumber) {
