@@ -38,21 +38,13 @@ public class InventoryRestController {
 
     @PostMapping
     public ResponseEntity<Item> insertNewItemWithLocationId(@RequestBody Item requestBody, UriComponentsBuilder uriBuilder) {
-        System.out.println("The item is" + requestBody);
         Item newItem = appService.createItem(requestBody);
         URI location = uriBuilder.path("/items/{id}").buildAndExpand(newItem.getId()).toUri();
         return ResponseEntity.created(location).body(newItem);
     }
 
-//    @PostMapping
-//    public ResponseEntity<Item> insertNewItem(@RequestBody Item requestBody, UriComponentsBuilder uriBuilder) {
-//        Item newItem = appService.createItem(requestBody);
-//        URI location = uriBuilder.path("/items/{id}").buildAndExpand(newItem.getId()).toUri();
-//        return ResponseEntity.created(location).body(newItem);
-//    }
-
     @DeleteMapping("/{itemId}")
-    public ResponseEntity deleteItem(@PathVariable int itemId) {
+    public ResponseEntity<Item> deleteItem(@PathVariable int itemId) {
         appService.deleteItem(itemId);
         return ResponseEntity.noContent().build();
     }

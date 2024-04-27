@@ -5,7 +5,6 @@ import com.backend.inventory.dao.LocationRepository;
 import com.backend.inventory.entity.Item;
 import com.backend.inventory.entity.Location;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,8 +27,6 @@ import static org.mockito.Mockito.verify;
 
 //@RunWith(MockitoJUnitRunner.class)
 class AppServiceImplTest {
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Mock
     private ItemRepository itemRepository;
 
@@ -147,8 +144,8 @@ class AppServiceImplTest {
 
     @Test
     void testCreatedItem_negativeItemIdAndLocationId() {
-        Location location = new Location(-1,"state",null,null);
-        Item properties = new Item(-1,"name", "description", location);
+        Location location = new Location(-1, "state", null, null);
+        Item properties = new Item(-1, "name", "description", location);
         ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
                 () -> appService.createItem(properties));
 
@@ -157,6 +154,7 @@ class AppServiceImplTest {
                 containsString("The properties: `id`, `location.id` "
                         + "are invalid or missing."));
     }
+
     @Test
     void testCreatedItem_missingIdAndLocationState() {
         Location location = new Location(1, null);
@@ -174,7 +172,7 @@ class AppServiceImplTest {
     @Test
     void testCreatedItem_missingName() {
         Location location = new Location(1, "state");
-        Item properties = new Item(1,null, location);
+        Item properties = new Item(1, null, location);
 
         ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
                 () -> appService.createItem(properties));
@@ -186,7 +184,7 @@ class AppServiceImplTest {
 
     @Test
     void testCreatedItem_missingLocation() {
-        Item properties = new Item(1,"name","description");
+        Item properties = new Item(1, "name", "description");
         ResponseStatusException expectedException = assertThrows(ResponseStatusException.class,
                 () -> appService.createItem(properties));
 

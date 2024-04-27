@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,17 +46,5 @@ public class InventoryRestControllerTest {
     }
     @Test
     public void testGetListOfItems_NotFound() {
-//        // Crea una excepción ResponseStatusException con código de estado 404 y mensaje personalizado
-//        ResponseStatusException exc = new ResponseStatusException(HttpStatus.NOT_FOUND, "No items found for state: 'nonexistent'");
-//        HttpServletRequest request = mock(HttpServletRequest.class);
-//        when(request.getRequestURI()).thenReturn("/items?state=nonexistent");
-//
-//        // Llama al método del manejador de excepciones
-//        ResponseEntity<ErrorResponse> response = exceptionHandler.handleResponseStatusException(exc, request);
-//
-//        // Verifica si la respuesta es un 404 NOT_FOUND
-//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        assertEquals("No items found for state: 'nonexistent'", response.getBody().getMessage());
-//        assertEquals("/items?state=nonexistent", response.getBody().getPath());
     }
 }

@@ -100,7 +100,7 @@ public class AppServiceImpl implements AppService {
 
     private static String getMessage(List<String> missingProperties) {
         int missing = missingProperties.size();
-        System.out.println(missing);
+
         StringBuilder listOfProperties = new StringBuilder();
 
         for (int i = 0; i < missing; i++) {
@@ -110,10 +110,10 @@ public class AppServiceImpl implements AppService {
         }
         String message;
         if (missing == 1)
-            message = "The property: " + listOfProperties.toString()
+            message = "The property: " + listOfProperties
                     + " is invalid or missing.";
         else
-            message = "The properties: " + listOfProperties.toString()
+            message = "The properties: " + listOfProperties
                     + " are invalid or missing.";
         return message;
     }
@@ -138,42 +138,6 @@ public class AppServiceImpl implements AppService {
         }
         return formattedLocation;
     }
-
-//    @Override
-//    public Item createItem(JsonNode request) {
-////        Item newItem = validateRequest(request);
-////        return itemRepository.save(newItem);
-//        return new Item();
-//    }
-
-//    private Item validateRequest(JsonNode request) {
-//        int id;
-//        String name;
-//        int location_id;
-//        String description = null;
-//        try {
-//            id = request.get("id").asInt();
-//            if (id <= 0) throw new Exception();
-//
-//            name = request.get("name").toString()
-//                    .replaceAll("^\"|\"$", "").strip();
-//
-//            location_id = request.get("location_id").asInt();
-//        } catch (Exception exc) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-//                    "Missing or not valid required properties `id`, `name` and/or `location_id` in the request body.", exc);
-//        }
-//        if (request.hasNonNull("description")) {
-//            description = request.get("description").toString()
-//                    .replaceAll("^\"|\"$", "").strip();
-//        }
-//
-//        validateNoConflicts(id);
-//        Location location = getLocation(location_id);
-//        return new Item(id, name, description, location);
-//    }
-
-
 
     @Override
     public void deleteItem(int itemId) {
