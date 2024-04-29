@@ -43,6 +43,7 @@ public class AppServiceImpl implements AppService {
                         new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "No items found for state: '" + stateName + "'")));
     }
+
     @Override
     public Item findItemById(int itemId) {
         Optional<Item> result = itemRepository.findById(itemId);
@@ -60,6 +61,7 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public Item createItem(Item newItem) {
+        System.out.println("newItem from service: " + newItem);
         validateRequiredProperties(newItem);
         validateNoConflicts(newItem.getId());
         newItem.setLocation(getDBLocation(newItem.getLocation()));
@@ -68,6 +70,7 @@ public class AppServiceImpl implements AppService {
     }
 
     private void validateRequiredProperties(Item newItem) {
+        System.out.println("DEBUG FROM  validateRequiredProperties");
         if (newItem.getLocation() == null) {
             newItem.setLocation(new Location());
         }
@@ -99,6 +102,7 @@ public class AppServiceImpl implements AppService {
     }
 
     private static String getMessage(List<String> missingProperties) {
+        System.out.println("Debug from getMessage");
         int missing = missingProperties.size();
 
         StringBuilder listOfProperties = new StringBuilder();
@@ -119,6 +123,7 @@ public class AppServiceImpl implements AppService {
     }
 
     private void validateNoConflicts(int itemId) {
+        System.out.println("Debug from validateNoConflicts");
         Optional<Item> foundItem = itemRepository.findById(itemId);
         if (foundItem.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -127,6 +132,7 @@ public class AppServiceImpl implements AppService {
     }
 
     private Location getDBLocation(Location location) {
+        System.out.println("Debug from getDBLocation");
         int location_id = location.getId();
         Optional<Location> foundLocation = locationRepository.findById(location_id);
         Location formattedLocation;
