@@ -20,6 +20,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation "io.projectreactor:reactor-core"
 	implementation "io.projectreactor:reactor-tools"
+	implementation "com.fasterxml.jackson.core:jackson-databind"
 	runtimeOnly 'com.h2database:h2'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'junit:junit'
