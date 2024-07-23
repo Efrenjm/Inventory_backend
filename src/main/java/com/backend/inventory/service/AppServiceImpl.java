@@ -70,7 +70,6 @@ public class AppServiceImpl implements AppService {
     }
 
     private void validateRequiredProperties(Item newItem) {
-        System.out.println("DEBUG FROM  validateRequiredProperties");
         if (newItem.getLocation() == null) {
             newItem.setLocation(new Location());
         }
@@ -87,12 +86,16 @@ public class AppServiceImpl implements AppService {
 
         if (locationId <= 0)
             missingProperties.add("`location.id`");
+        else {
+            Optional<Location> foundLocation = locationRepository.findById(locationId);
+            System.out.println("locationId: " + locationId);
+            if (foundLocation.isEmpty() && (stateName == null || stateName.isBlank()))
+                missingProperties.add("`location.state`");
+        }
 
         if (itemName == null || itemName.isBlank())
             missingProperties.add("`name`");
 
-        if (stateName == null || stateName.isBlank())
-            missingProperties.add("`location.state`");
 
         if (!missingProperties.isEmpty()) {
             String message = getMessage(missingProperties);

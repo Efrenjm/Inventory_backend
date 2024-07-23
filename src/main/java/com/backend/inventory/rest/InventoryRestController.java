@@ -12,6 +12,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/items")
+@CrossOrigin(origins = "http://localhost:3000")
 public class InventoryRestController {
     private final AppService appService;
 

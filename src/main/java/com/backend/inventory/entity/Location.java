@@ -17,7 +17,7 @@ public class Location {
     private String address;
 
     @Column(name = "phone_number")
-    private Long phoneNumber;
+    private String phoneNumber;
 
     public Location() {
     }
@@ -27,7 +27,7 @@ public class Location {
         this.state = state;
     }
 
-    public Location(int id, String state, String address, Long phoneNumber) {
+    public Location(int id, String state, String address, String phoneNumber) {
         this.id = id;
         this.state = state;
         this.address = address;
@@ -58,11 +58,11 @@ public class Location {
         this.address = address;
     }
 
-    public Long getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(Long phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
