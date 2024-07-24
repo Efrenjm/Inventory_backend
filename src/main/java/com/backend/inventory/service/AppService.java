@@ -13,7 +13,7 @@ public interface AppService {
 
     Item createItem(Item request);
 
-//    Item createItem(JsonNode request);
+    Item updateItem(Item request);
 
     void deleteItem(int itemId);
 }

@@ -47,6 +47,12 @@ public class InventoryRestController {
         return ResponseEntity.created(location).body(newItem);
     }
 
+    @ResponseBody
+    @PatchMapping
+    public ResponseEntity<Item> editItem(@RequestBody Item requestBody) {
+        return ResponseEntity.ok(appService.updateItem(requestBody));
+    }
+
     @DeleteMapping(value = "/{itemId}")
     public ResponseEntity<Item> deleteItem(@PathVariable int itemId) {
         appService.deleteItem(itemId);

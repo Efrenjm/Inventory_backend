@@ -61,7 +61,6 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public Item createItem(Item newItem) {
-        System.out.println("newItem from service: " + newItem);
         validateRequiredProperties(newItem);
         validateNoConflicts(newItem.getId());
         newItem.setLocation(getDBLocation(newItem.getLocation()));
@@ -81,20 +80,21 @@ public class AppServiceImpl implements AppService {
 
         List<String> missingProperties = new ArrayList<>();
 
-        if (itemId <= 0)
+        if (itemId <= 0) {
             missingProperties.add("`id`");
+        }
 
-        if (locationId <= 0)
+        if (locationId <= 0) {
             missingProperties.add("`location.id`");
-        else {
+        } else {
             Optional<Location> foundLocation = locationRepository.findById(locationId);
-            System.out.println("locationId: " + locationId);
             if (foundLocation.isEmpty() && (stateName == null || stateName.isBlank()))
                 missingProperties.add("`location.state`");
         }
 
-        if (itemName == null || itemName.isBlank())
+        if (itemName == null || itemName.isBlank()) {
             missingProperties.add("`name`");
+        }
 
 
         if (!missingProperties.isEmpty()) {
@@ -105,7 +105,6 @@ public class AppServiceImpl implements AppService {
     }
 
     private static String getMessage(List<String> missingProperties) {
-        System.out.println("Debug from getMessage");
         int missing = missingProperties.size();
 
         StringBuilder listOfProperties = new StringBuilder();
@@ -126,7 +125,6 @@ public class AppServiceImpl implements AppService {
     }
 
     private void validateNoConflicts(int itemId) {
-        System.out.println("Debug from validateNoConflicts");
         Optional<Item> foundItem = itemRepository.findById(itemId);
         if (foundItem.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -135,7 +133,6 @@ public class AppServiceImpl implements AppService {
     }
 
     private Location getDBLocation(Location location) {
-        System.out.println("Debug from getDBLocation");
         int location_id = location.getId();
         Optional<Location> foundLocation = locationRepository.findById(location_id);
         Location formattedLocation;
@@ -146,6 +143,26 @@ public class AppServiceImpl implements AppService {
             formattedLocation = locationRepository.save(location);
         }
         return formattedLocation;
+    }
+
+    @Override
+    public Item updateItem(Item changedItem) {
+        Optional<Item> tempItem = itemRepository.findById(changedItem.getId());
+        Item updatedItem;
+
+        if (tempItem.isPresent()) {
+            updatedItem = tempItem.get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The provided `id` " + changedItem.getId() + " is not associated with a valid item.");
+        }
+
+        updatedItem.setName(changedItem.getName());
+        updatedItem.setDescription(changedItem.getDescription());
+
+        validateRequiredProperties(updatedItem);
+
+        return itemRepository.save(updatedItem);
     }
 
     @Override
