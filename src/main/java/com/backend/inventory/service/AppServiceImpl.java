@@ -141,6 +141,7 @@ public class AppServiceImpl implements AppService {
         } else {
             locationRepository.findAll();
             formattedLocation = locationRepository.save(location);
+            System.out.println("Location not found in DB. Saving new location with the following properties: " + formattedLocation);
         }
         return formattedLocation;
     }

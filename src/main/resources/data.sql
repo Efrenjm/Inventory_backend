@@ -4,7 +4,7 @@ CREATE TABLE location (
     id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
     state VARCHAR(20) NOT NULL,
     address VARCHAR(250),
-    phone_number BIGINT
+    phone_number VARCHAR(10)
 );
 CREATE TABLE item (
     id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
